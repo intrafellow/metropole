@@ -1,5 +1,6 @@
 import type React from "react";
 import { useRef, useEffect } from "react";
+import { NavLink } from "react-router-dom"; // если не нужен здесь — можно удалить
 import "@styles/home.css";
 import logo from "../../assets/99.png";
 import map from "../../assets/world-map-purple.png";
@@ -56,7 +57,7 @@ function calcSunAndSkyVars(opts: { tz?: string; now?: Date }) {
     "--sun-color": sunColor,
     "--sun-glow": sunGlow,
     "--sky-top": skyTop,
-    "--sky-bot": skyBot,
+    "--sky-bot": botNight, /* твой градиент ниже перекрывает */
     "--sky-opacity": skyOpacity.toString(),
     "--night-opacity": nightOpacity.toString(),
     "--stars-opacity": starsOpacity.toString(),
@@ -96,12 +97,14 @@ export default function Home() {
     let minuteTimeout: number | undefined;
     let minuteInterval: number | undefined;
     const scheduleMinuteTicks = () => {
-      const now = new Date();
-      const toNext = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
-      minuteTimeout = window.setTimeout(() => {
-        applyLive();
-        minuteInterval = window.setInterval(applyLive, 60_000);
-      }, Math.max(0, toNext));
+      theNow: {
+        const now = new Date();
+        const toNext = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+        minuteTimeout = window.setTimeout(() => {
+          applyLive();
+          minuteInterval = window.setInterval(applyLive, 60_000);
+        }, Math.max(0, toNext));
+      }
     };
     scheduleMinuteTicks();
     const onVisibility = () => {
@@ -136,7 +139,6 @@ export default function Home() {
   return (
     <div>
       <style>{`
-
         :root{
           --page-bg: var(--app-bg, #07112d);
           --fg: var(--app-fg, #e9ecf3);
@@ -166,19 +168,19 @@ export default function Home() {
         /* SKY */
         .sky { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;
                transform: translate3d(calc(var(--mx, 0) * 6px), calc(var(--my, 0) * 4px), 0); will-change: transform; }
-.sky-gradient {
-  position:absolute;
-  inset:0;
-  background: linear-gradient(to bottom,
-    #8B008B 0%,     /* темно-фиолетовый */
-    #DA70D6 30%,    /* орхидея */
-    #FF69B4 70%,    /* горячий розовый */
-    #FFB6C1 100%    /* светлый розовый */
-  );
-  opacity: var(--sky-opacity, .22);
-  transition: opacity 800ms ease, background 1200ms ease;
-  z-index:0;
-}
+        .sky-gradient {
+          position:absolute;
+          inset:0;
+          background: linear-gradient(to bottom,
+            #8B008B 0%,
+            #DA70D6 30%,
+            #FF69B4 70%,
+            #FFB6C1 100%
+          );
+          opacity: var(--sky-opacity, .22);
+          transition: opacity 800ms ease, background 1200ms ease;
+          z-index:0;
+        }
         .night-tint { position:absolute; inset:0; background:#05070c; mix-blend-mode:multiply; opacity: var(--night-opacity, 0);
                       transition: opacity 800ms ease; z-index:1; }
         .stars { position:absolute; inset:0;
@@ -274,33 +276,59 @@ export default function Home() {
           row-gap: clamp(8px, 1.2vw, 14px);
           text-align: center;
         }
-.hero-title {
-  font-size: clamp(28px, 4.6vw, 48px);
-  line-height: 1.18;
-  letter-spacing: -0.01em;
-  margin: 0;
-  color: #f7f9ff; /* мягкий белый */
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-}
+        .hero-title {
+          font-size: clamp(28px, 4.6vw, 48px);
+          line-height: 1.18;
+          letter-spacing: -0.01em;
+          margin: 0;
+          color: #f7f9ff;
+          text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+        }
+        .hero-line {
+          font-size: clamp(22px, 2.2vw, 26px);
+          line-height: 1.55;
+          opacity: .95;
+          margin: 0;
+          color: #f3f6ff;
+          text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+          font-weight: 600;
+        }
+        .hero-line.small {
+          font-size: clamp(14px, 1.6vw, 18px);
+          opacity: .9;
+          color: #f8fbff;
+          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+          font-style: italic;
+        }
 
-.hero-line {
-  font-size: clamp(22px, 2.2vw, 26px);
-  line-height: 1.55;
-  opacity: .95;
-  margin: 0;
-  color: #f3f6ff; /* чуть теплее белый */
-  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  font-weight: 600; /* ← жирный шрифт */
-}
-
-.hero-line.small {
-  font-size: clamp(14px, 1.6vw, 18px); /* чуть больше */
-  opacity: .9;
-  color: #f8fbff; /* светлый, без синего оттенка */
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
-  font-style: italic; /* курсив */
-}
-
+        /* === КНОПКА MENU под текстом (только мобильные) === */
+        .hero-cta {
+          display: grid;
+          justify-content: center;
+          margin-top: 10px;
+        }
+        .menu-btn {
+          display: inline-grid;
+          place-items: center;
+          padding: 10px 16px;
+          border-radius: 999px;
+          border: 1px solid var(--border);
+          background: rgba(255,255,255,0.06);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+          color: #fff;
+          font-weight: 700;
+          letter-spacing: .02em;
+          text-transform: uppercase;
+          font-size: 14px;
+          box-shadow: 0 10px 24px rgba(0,0,0,.20);
+          transition: transform .15s ease, background .2s ease, border-color .2s ease;
+        }
+        .menu-btn:active { transform: translateY(1px) scale(.99); }
+        .menu-btn:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,.22); }
+        @media (min-width: 1024px) {
+          .menu-btn { display:none; } /* на десктопе кнопка скрыта */
+        }
 
         /* MAP ONLY */
         .partners-section{ position: relative; }
@@ -309,13 +337,13 @@ export default function Home() {
         .map-wrap{
           display:grid;
           gap:12px;
-          justify-items:center; /* центрируем */
-          text-align:center;    /* текст по центру */
+          justify-items:center;
+          text-align:center;
         }
         .map-title{
           margin: 4px 0 2px;
           font-weight: 600;
-          font-size: clamp(18px, 2.2vw, 28px); /* крупнее h6 */
+          font-size: clamp(18px, 2.2vw, 28px);
           line-height: 1.25;
           letter-spacing: -0.01em;
         }
@@ -337,17 +365,15 @@ export default function Home() {
         onMouseMove={onHeroMouseMove}
         style={{
           position: "relative",
-backgroundImage: `
-  linear-gradient(
-    to bottom,
-    rgba(10,21,53,0) 65%,   /* прозрачный участок */
-    rgba(10,21,53,0.85) 90%,/* мягкий переход */
-    #0a1535 100%            /* ← твой фирменный тёмно-синий */
-  ),
-  url(${back})
-`,
-
-
+          backgroundImage: `
+            linear-gradient(
+              to bottom,
+              rgba(10,21,53,0) 65%,
+              rgba(10,21,53,0.85) 90%,
+              #0a1535 100%
+            ),
+            url(${back})
+          `,
           backgroundSize: "cover",
           backgroundPosition: "center bottom",
           minHeight: "min(88vh, 920px)",
@@ -401,6 +427,19 @@ backgroundImage: `
               Strategic guidance, investor-ready financial models, and smart funding strategies
             </p>
             <p className="hero-line small">Built by entrepreneurs, for entrepreneurs</p>
+
+            {/* === КНОПКА MENU (мобилка): открывает бургер из Header === */}
+            <div className="hero-cta">
+              <button
+                type="button"
+                className="menu-btn"
+                aria-label="Open menu"
+                aria-haspopup="menu"
+                onClick={() => window.dispatchEvent(new Event("mcg:toggleMenu"))}
+              >
+                Menu
+              </button>
+            </div>
           </div>
         </div>
 

@@ -19,6 +19,7 @@
   isolation: isolate;            /* свой слой (для mix-blend и co.) */
   transform: translateZ(0);      /* слой композитинга */
   will-change: transform;
+  max-height: 56vh;
 }
 
 /* Контейнер ширины */
@@ -316,7 +317,7 @@ html, body, #root {
 
   .nav-link {
     text-align: center;
-    padding: 14px 0;
+    padding: 8px 0;
     font-size: 16px;
     letter-spacing: 0.05em;
   }

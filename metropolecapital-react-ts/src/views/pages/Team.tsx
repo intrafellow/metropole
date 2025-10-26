@@ -280,6 +280,47 @@ export default function Team() {
             </div>
           </div>
         </div>
+
+        <div style={{ textAlign: "center", marginTop: "80px" }}>
+            <a
+              href="/contact"
+              className="contact-cta"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "16px 36px",
+                fontSize: "17px",
+                fontWeight: 700,
+                color: "#fff",
+                borderRadius: "16px",
+                border: "1px solid rgba(255,255,255,0.25)",
+                background:
+                  "linear-gradient(135deg, rgba(116,152,255,0.25), rgba(160,108,255,0.25))",
+                backdropFilter: "blur(8px) saturate(140%)",
+                boxShadow:
+                  "0 0 22px rgba(108,160,255,0.2), inset 0 1px 0 rgba(255,255,255,0.25)",
+                textDecoration: "none",
+                transition: "all 0.25s ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "linear-gradient(135deg, rgba(116,152,255,0.4), rgba(160,108,255,0.4))";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 36px rgba(108,160,255,0.35)";
+                (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background =
+                  "linear-gradient(135deg, rgba(116,152,255,0.25), rgba(160,108,255,0.25))";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 0 22px rgba(108,160,255,0.2), inset 0 1px 0 rgba(255,255,255,0.25)";
+                (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+              }}
+            >
+              Contact us
+            </a>
+          </div>
       </section>
     </main>
   );
