@@ -2,3 +2,25 @@ node_modules
 dist
 .vite
 .DS_Store
+*.md
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Build
+tsconfig.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
