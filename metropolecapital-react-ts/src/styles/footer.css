@@ -1,0 +1,225 @@
+/* Палитра согласована с header.css (без чистых #fff/#000) */
+:root{
+  --mcg-blue: #0c5a8a;    /* как у хедера */
+  --ink-900: #0b0f13;     /* глубокий «чёрный» */
+  --ink-800: #0f141a;
+  --ice-60:  #f3f7ff;     /* мягкий светлый */
+  --ice-50:  #eef5ff;
+}
+
+.mcg-container{ max-width:2000px; margin:0 auto; padding:0 20px; }
+
+/* Корневой футер + переменные курсора для блоба */
+.mcg-footer{ position:relative; isolation:isolate; }
+.mcg-footer--liquid{ --mx: 50%; --my: 50%; }
+
+/* Двигающийся liquid-blob (реагирует на onMouseMove) */
+.mcg-footer--liquid .mcg-liquid-blob{
+  position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(220px 160px at var(--mx) var(--my), rgba(248,252,255,.18), rgba(248,252,255,0)),
+    radial-gradient(360px 280px at calc(var(--mx) + 120px) calc(var(--my) + 40px), rgba(248,252,255,.10), rgba(248,252,255,0));
+  filter: blur(16px) saturate(130%);
+  mix-blend-mode: soft-light;
+  transition: background .12s ease;
+}
+@media (prefers-reduced-motion: reduce){
+  .mcg-footer--liquid .mcg-liquid-blob{ transition:none; }
+}
+
+/* Верхний высокий синий блок */
+.mcg-footer__top{
+  position:relative; z-index:1;
+  background: var(--mcg-blue);
+  padding: 44px 0;                /* выше по вертикали */
+  box-shadow: 0 -1px 0 rgba(10,18,26,.06) inset;
+}
+
+/* Сетка 3 колонки (лево/центр/право) */
+.mcg-footer__grid{
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px;
+}
+
+/* Заголовки колонок */
+.mcg-footer__title{
+  margin:0 0 14px;
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color: var(--ice-50);
+}
+
+/* Текст/контакты */
+.mcg-footer__text{ margin:0 0 8px; font-size:14px; color: var(--ice-60); }
+
+/* ====== Списки: ровно 2 колонки × 3 строки (заполняем ВНИЗ) ====== */
+.mcg-footer__list{
+  list-style:none; padding:0; margin:0;
+  display:grid;
+  grid-auto-flow: column;                 /* заполняем сначала вниз, затем вправо */
+  grid-template-rows: repeat(3, auto);    /* 3 строки вниз */
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 колонки */
+  column-gap: 24px;
+  row-gap: 8px;
+}
+
+/* элементы списка без сжатия текста */
+.mcg-footer__list li{ margin:0; }
+
+/* =========================================
+   ССЫЛКИ В ФУТЕРЕ (2 сценария):
+   1) .mcg-footer__link — старый класс футера
+   2) .nav-link — NavLink из хедера, но в футере
+   Оба ведут себя одинаково: стеклянная капсула, НО БЕЗ смены цвета.
+   ========================================= */
+
+/* 1) Старый класс футера */
+.mcg-footer__link{
+  position:relative; display:block;
+  color: var(--ice-60);
+  text-decoration:none; font-size:14px; letter-spacing:.02em;
+  white-space: normal; overflow: visible; text-overflow: clip;
+  transition: transform .18s ease, color .18s ease, text-decoration-color .18s ease;
+}
+.mcg-footer__link::before{
+  content:""; position:absolute; inset:-6px -10px; border-radius:999px;
+  opacity:0; transform: translateY(2px) scale(.96);
+  background: linear-gradient(180deg, rgba(248,252,255,.10), rgba(248,252,255,.04));
+  border:1px solid rgba(248,252,255,.22);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(250,253,255,.18), 0 4px 14px rgba(12, 20, 28, .16);
+  z-index:-1; transition: opacity .18s, transform .18s, border-color .18s;
+}
+/* Ховеры/актив — не меняем цвет! */
+.mcg-footer__link:hover,
+.mcg-footer__link:focus,
+.mcg-footer__link:active,
+.mcg-footer__link:visited{
+  color: var(--ice-60); /* фиксируем цвет */
+}
+.mcg-footer__link:hover{ transform: translateY(-1px); }
+.mcg-footer__link:hover::before{ opacity:1; transform: translateY(0) scale(1); border-color:rgba(248,252,255,.34); }
+
+/* 2) NavLink из хедера, но внутри футера */
+.mcg-footer .nav-link{
+  position:relative; display:block;
+  color: var(--ice-60);
+  text-decoration:none; font-size:14px; letter-spacing:.02em;
+  white-space: normal; overflow: visible; text-overflow: clip;
+  transition: transform .18s ease, color .18s ease, text-decoration-color .18s ease;
+}
+.mcg-footer .nav-link::before{
+  content:""; position:absolute; inset:-6px -10px; border-radius:999px;
+  opacity:0; transform: translateY(2px) scale(.96);
+  background: linear-gradient(180deg, rgba(248,252,255,.10), rgba(248,252,255,.04));
+  border:1px solid rgba(248,252,255,.22);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(250,253,255,.18), 0 4px 14px rgba(12, 20, 28, .16);
+  z-index:-1; transition: opacity .18s, transform .18s, border-color .18s;
+}
+/* Не допускаем синей перекраски и active-состояния из хедера */
+.mcg-footer .nav-link,
+.mcg-footer .nav-link:visited,
+.mcg-footer .nav-link:hover,
+.mcg-footer .nav-link:focus,
+.mcg-footer .nav-link:active,
+.mcg-footer .nav-link.nav-link--active{
+  color: var(--ice-60);
+}
+.mcg-footer .nav-link:hover{ transform: translateY(-1px); }
+.mcg-footer .nav-link:hover::before{ opacity:1; transform: translateY(0) scale(1); border-color:rgba(248,252,255,.34); }
+
+/* Если в хедере принудительные !important на цвет — раскомментируй нижний блок */
+/*
+.mcg-footer .nav-link,
+.mcg-footer .nav-link:visited,
+.mcg-footer .nav-link:hover,
+.mcg-footer .nav-link:focus,
+.mcg-footer .nav-link:active,
+.mcg-footer .nav-link.nav-link--active{
+  color: var(--ice-60) !important;
+}
+*/
+
+/* Disclaimer — глубокий тёмный блок */
+.mcg-footer__disclaimer{
+  background: linear-gradient(180deg, var(--ink-900), var(--ink-800));
+  padding: 30px 0 40px;
+  border-top: 1px solid rgba(243,247,255,.06);
+}
+.mcg-footer__muted{
+  margin:0 0 10px;
+  font-size:12.5px; line-height:1.65;
+  color:#c9d4e3; opacity:.92;
+}
+
+/* Копирайт: СИНИЙ ФОН (как у хедера) + мягкое свечение */
+.mcg-footer__copyright {
+  display: flex;              /* чтоб можно было пушнуть вправо */
+  justify-content: flex-end;  /* → вправо */
+  margin-top: 12px;
+}
+.mcg-footer__copyright-badge{
+  display:inline-block;
+  background: var(--mcg-blue);         /* фон как у хедера */
+  color: var(--ice-60);                 /* мягкий светлый текст */
+  padding: 6px 12px;
+  border-radius: 10px;                  /* «капсула» */
+  box-shadow:
+    0 0 0 1px rgba(15, 80, 121, .35),
+    0 6px 18px rgba(12, 20, 28, .22);
+  text-shadow:
+    0 0 8px rgba(12, 90, 138, .25),
+    0 1px 0 rgba(7, 12, 18, .25);
+  letter-spacing: .04em;
+  font-weight: 600;
+}
+
+/* Адаптив: на мобиле обычный список */
+@media (max-width: 960px){
+  .mcg-footer__grid{ grid-template-columns:1fr; gap:24px; }
+  .mcg-footer__top{ padding: 32px 0; }
+  .mcg-footer__list{
+    grid-auto-flow: row;          /* обычное заполнение по рядам */
+    grid-template-rows: none;
+    grid-template-columns: 1fr;   /* одна колонка */
+  }
+}
+
+/* Fallback без backdrop-filter */
+@supports not ((-webkit-backdrop-filter: blur(6px)) or (backdrop-filter: blur(6px))){
+  .mcg-footer__link::before,
+  .mcg-footer .nav-link::before{ background: rgba(248,252,255,.08); }
+}
+
+/* src/styles/footer.css — добавьте в конец */
+
+/* Синяя полоса с логотипом */
+.mcg-footer__top--logo{
+  display:flex;                 /* why: легко выровнять содержимое */
+  align-items:center;
+  justify-content:flex-end;     /* лого вправо */
+  min-height:72px;              /* комфортная высота полосы */
+}
+
+/* Лого в синей полосе */
+.mcg-footer__logo{
+  display:block;
+  height:40px;                  /* подстройте при необходимости */
+  width:auto;
+  opacity:.95;
+  transition:transform .16s ease, opacity .16s ease; /* why: мягкая интеракция */
+}
+.mcg-footer__logo:hover,
+.mcg-footer__logo:focus{ transform:scale(1.04); opacity:1; }
+
+/* На мобиле делаем полосу повыше и центрируем лого, если нужно */
+@media (max-width: 960px){
+  .mcg-footer__top--logo{
+    justify-content:center;
+    min-height:84px;
+  }
+}
+

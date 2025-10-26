@@ -1,0 +1,18 @@
+[32m[1m[OK]  [0m Лог: metropolecapital-react-ts_setup_20251010_204345.log
+[34m[1m[INFO][0m Создаю package.json / tsconfig / vite.config…
+[34m[1m[INFO][0m Создаю index.html…
+[34m[1m[INFO][0m Создаю структуру src/…
+[34m[1m[INFO][0m Установка зависимостей (yarn)…
+warning ../../../package.json: No license field
+(node:3185) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[32m[1m[OK]  [0m Готово.
+
+Запуск разработки:
+  yarn dev
+
+Сборка и предпросмотр:
+  yarn build && yarn preview
+
+Пересоздать в существующей папке:
+  bash setup_metropole.sh my-app --force
