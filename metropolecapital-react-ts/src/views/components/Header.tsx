@@ -58,7 +58,7 @@ export default function Header() {
           <NavItem to="/insights" onClick={() => setMenuOpen(false)}>INSIGHTS</NavItem>
           <NavItem to="/venture" onClick={() => setMenuOpen(false)}>VENTURE KINGS</NavItem>
           <NavItem to="/team" onClick={() => setMenuOpen(false)}>TEAM</NavItem>
-          <NavItem to="/contact" onClick={() => setMenuOpen(false)}>CONTACT</NavItem>
+          <NavItem to="/contact" onClick={() => setMenuOpen(false)}>CONTACT US</NavItem>
         </nav>
 
         {/* === SOCIAL ICONS === */}
