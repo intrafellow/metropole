@@ -33,3 +33,5 @@ function SimplePage({ title }: { title: string }) {
 export default SimplePage;
 
 
+
+

@@ -175,7 +175,7 @@ export default function Team() {
           <div className="card founder-card" style={{ gridColumn: "1 / -1" }}>
             <img src={v} alt="Victoria Silchenko Robbins" className="founder-photo" />
             <div>
-              <h3 className="member-name">Victoria Silchenko Robbins</h3>
+              <h3 className="member-name">Victoria Silchenko Robbins, PhD</h3>
               <div className="member-role">
                 Founder & CEO | Economist | Entrepreneurial Finance Strategist
               </div>
