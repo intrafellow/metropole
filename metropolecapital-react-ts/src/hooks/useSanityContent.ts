@@ -14,18 +14,22 @@ export function useSanityContent<T>(
 
   useEffect(() => {
     async function loadContent() {
-      const data = await fetchFn()
-      setContent(data)
-      setLoading(false)
+      try {
+        const data = await fetchFn()
+        setContent(data)
+        setLoading(false)
 
-      // Проверяем изменился ли контент
-      const currentContent = JSON.stringify(data)
-      if (lastContentRef.current && lastContentRef.current !== currentContent) {
-        // Контент изменился - перезагружаем страницу
-        console.log('Content changed, reloading...')
-        window.location.reload()
+        // Проверяем изменился ли контент
+        const currentContent = JSON.stringify(data)
+        if (lastContentRef.current && lastContentRef.current !== currentContent) {
+          // Контент изменился - перезагружаем страницу
+          console.log('Content changed, reloading...')
+          window.location.reload()
+        }
+        lastContentRef.current = currentContent
+      } catch (error) {
+        console.error('Error loading content:', error)
       }
-      lastContentRef.current = currentContent
     }
 
     loadContent()
@@ -34,7 +38,7 @@ export function useSanityContent<T>(
     const interval = setInterval(loadContent, pollInterval)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchFn, pollInterval])
 
   return {
     content,
