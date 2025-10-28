@@ -1,10 +1,10 @@
 import type React from "react";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom"; // если не нужен здесь — можно удалить
 import "@styles/home.css";
-import logo from "../../assets/99.png";
-import map from "../../assets/world-map-purple.png";
 import back from "../../assets/back.png";
+import { getHomeContent } from "../../services/getContentFromSanity";
+import { urlFor } from "../../services/sanityService";
 
 /* ---------- Time/Sky helpers ---------- */
 function getTZHoursMinutes(tz: string, now = new Date()) {
@@ -69,6 +69,17 @@ function calcSunAndSkyVars(opts: { tz?: string; now?: Date }) {
 export default function Home() {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const tz = "America/Los_Angeles";
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getHomeContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
 
   function applySky(vars: Record<string, string>) {
     const el = heroRef.current;
@@ -90,9 +101,12 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (!content) return;
     applyLive();
-  }, []);
+  }, [content]);
+  
   useEffect(() => {
+    if (!content) return;
     applyLive();
     let minuteTimeout: number | undefined;
     let minuteInterval: number | undefined;
@@ -116,9 +130,10 @@ export default function Home() {
       if (minuteInterval) clearInterval(minuteInterval);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
+  }, [content]);
 
   useEffect(() => {
+    if (!content) return;
     const host = heroRef.current;
     if (!host) return;
     const sun = host.querySelector<HTMLDivElement>(".sun");
@@ -134,7 +149,20 @@ export default function Home() {
       sun.removeEventListener("click", onClick);
       if (timer) window.clearTimeout(timer);
     };
-  }, []);
+  }, [content]);
+
+  if (loading || !content) {
+    return (
+      <div>
+        <div style={{ padding: '48px', textAlign: 'center' }}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const logoUrl = content.logo ? urlFor(content.logo).width(600).url() : '';
+  const mapUrl = content.mapImage ? urlFor(content.mapImage).width(1000).url() : '';
 
   return (
     <div>
@@ -420,13 +448,11 @@ export default function Home() {
             willChange: "transform",
           }}
         >
-          <img src={logo} alt="Metropole Capital Group" className="hero-logo" />
+          <img src={logoUrl} alt="Metropole Capital Group" className="hero-logo" />
           <div className="hero-copy">
-            <h1 className="hero-title">We help founders master capital</h1>
-            <p className="hero-line">
-              Strategic guidance, investor-ready financial models, and smart funding strategies
-            </p>
-            <p className="hero-line small">Built by entrepreneurs, for entrepreneurs</p>
+            <h1 className="hero-title">{content.heroTitle}</h1>
+            <p className="hero-line">{content.heroLine}</p>
+            <p className="hero-line small">{content.heroLineSmall}</p>
 
             {/* === КНОПКА MENU (мобилка): открывает бургер из Header === */}
             <div className="hero-cta">
@@ -450,8 +476,8 @@ export default function Home() {
       <section className="section partners-section">
         <div className="container">
           <aside className="map-wrap map-sticky" aria-label="Global partner presence">
-            <p className="map-title">Our network is worldwide:</p>
-            <img className="map-img" src={map} alt="World map representing global partner presence" loading="lazy" />
+            <p className="map-title">{content.mapTitle}</p>
+            <img className="map-img" src={mapUrl} alt="World map representing global partner presence" loading="lazy" />
           </aside>
         </div>
       </section>

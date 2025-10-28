@@ -15,7 +15,8 @@ export default defineConfig({
       '@models': r('./src/models'),
       '@controllers': r('./src/controllers'),
       '@components': r('./src/views/components'),
-      '@pages': r('./src/views/pages')
+      '@pages': r('./src/views/pages'),
+      '@services': r('./src/services')
     }
   },
 server: {

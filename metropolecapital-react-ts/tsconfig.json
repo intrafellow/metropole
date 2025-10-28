@@ -20,7 +20,8 @@
       "@components/*": ["src/views/components/*"],
       "@pages/*": ["src/views/pages/*"],
       "@styles/*": ["src/styles/*"],
-      "@app/*": ["src/app/*"]
+      "@app/*": ["src/app/*"],
+      "@services/*": ["src/services/*"]
     }
   }
 }

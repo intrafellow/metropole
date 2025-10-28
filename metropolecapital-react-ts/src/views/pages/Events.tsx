@@ -1,21 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "@styles/home.css";
-import e1 from "../../assets/events/1е.jpg";
-import e2 from "../../assets/events/3е.jpg";
-import e3 from "../../assets/events/6.jpg";
-import e4 from "../../assets/events/4е.jpg";
-import e5 from "../../assets/events/6е.jpg";
-import e6 from "../../assets/events/7.jpg";
-import e7 from "../../assets/events/7е.jpg";
-import e8 from "../../assets/events/8.jpg";
-import e9 from "../../assets/events/9.jpg";
-import e10 from "../../assets/events/10.jpg";
-import e11 from "../../assets/events/11.jpg";
-import e12 from "../../assets/events/12.jpg";
-import e13 from "../../assets/events/13.jpg";
-import e14 from "../../assets/events/14.jpg";
-import e15 from "../../assets/events/16.jpg";
-import e16 from "../../assets/events/17.jpg";
+import { getEventsContent } from "../../services/getContentFromSanity";
+import { urlFor } from "../../services/sanityService";
 
 type MediaItem = {
   kind: "photo" | "video";
@@ -23,25 +9,6 @@ type MediaItem = {
   alt: string;
   href?: string;
 };
-
-const GALLERY: MediaItem[] = [
-  { kind: "photo", src: e1 },
-  { kind: "photo", src: e2 },
-  { kind: "photo", src: e3 },
-  { kind: "photo", src: e4 },
-  { kind: "photo", src: e5 },
-  { kind: "photo", src: e6 },
-  { kind: "photo", src: e7 },
-  { kind: "photo", src: e8 },
-  { kind: "photo", src: e9 },
-  { kind: "photo", src: e10 },
-  { kind: "photo", src: e11 },
-  { kind: "photo", src: e12 },
-  { kind: "photo", src: e13 },
-  { kind: "photo", src: e14 },
-  { kind: "photo", src: e15 },
-  { kind: "photo", src: e16 },
-];
 
 function PageStyles() {
   return (
@@ -106,7 +73,51 @@ function PageStyles() {
 }
 
 export default function Events() {
-  const [openMedia, setOpenMedia] = React.useState<null | MediaItem>(null);
+  const [openMedia, setOpenMedia] = useState<null | MediaItem>(null);
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getEventsContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
+
+  if (loading) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p className="p">Loading...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!content) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p className="p">Content not available</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  // Преобразуем galleryItems из Sanity в MediaItem
+  const galleryItems: MediaItem[] = content.galleryItems?.map((item: any) => ({
+    kind: "photo" as const,
+    src: urlFor(item.image).width(800).url(),
+    alt: item.alt || "Event photo"
+  })) || [];
 
   return (
     <main>
@@ -115,8 +126,8 @@ export default function Events() {
       {/* === HERO === */}
       <section className="section">
         <div className="container impact">
-          <h2 className="title">Events</h2>
-          <p className="lead">Shaping the Global Funding Conversation Since 2012</p>
+          <h2 className="title">{content.title}</h2>
+          <p className="lead">{content.lead}</p>
 
           <hr
             style={{
@@ -128,38 +139,20 @@ export default function Events() {
           />
 
           <div className="card">
-  <h3>Over a Decade of Global Engagement</h3>
+  <h3>{content.cardTitle}</h3>
 
   <p className="p">
-    For more than a decade, we’ve been actively engaged with the global investment and startup community —
-    bringing together visionary founders, investors, policymakers, and thought leaders to explore
-    <strong> new models of capital formation.</strong>
+    {content.cardDescription}
   </p>
 
   <ul className="p" style={{ marginTop: 10 }}>
-    <li>
-      <strong>Collaborations:</strong> Partnering with <em>LAVA (Los Angeles Venture Association)</em> and other leading organizations
-      to host high-impact seminars on equity crowdfunding and alternative financing strategies.
-    </li>
-    <li>
-      <strong>Thought Leadership:</strong> Curating discussions on forward-thinking topics such as
-      the <em>dangers of traditional venture capital dependency</em> and emerging global funding models.
-    </li>
-    <li>
-      <strong>Founder Empowerment:</strong> Launching initiatives like
-      <em> The Next Generation Entrepreneurship Forum</em> and the
-      <em> Global Alternative Funding Forum</em> — designed to equip founders and investors with actionable insights.
-    </li>
-    <li>
-      <strong>World Funding Summit:</strong> Hosting the flagship annual event at the
-      <em> Los Angeles Convention Center</em>, endorsed by the Mayor of Los Angeles and featuring leading
-      venture funds such as <strong>Union Grove Venture Partners ($800M+)</strong>, <strong>Crosscut Ventures ($400M+)</strong>,
-      and <strong>Upfront Ventures ($1B+)</strong>.
-    </li>
+    {content.cardItems?.map((item: string, idx: number) => (
+      <li key={idx} dangerouslySetInnerHTML={{ __html: item }} />
+    ))}
   </ul>
 
   <p className="p" style={{ textAlign: "center", marginTop: 24, fontWeight: 500 }}>
-    <h3>Inspiring the next generation of founders to rethink capital and create global impact</h3>
+    <h3>{content.cardFooterTitle}</h3>
   </p>
 </div>
 
@@ -169,14 +162,13 @@ export default function Events() {
       {/* === GALLERY === */}
       <section className="section">
         <div className="container">
-          <div><h3>Highlights & Community</h3></div>
+          <div><h3>{content.galleryTitle}</h3></div>
           <div className="card">
             <p className="p">
-              Over the years, our events have united innovators, investors, and policymakers across continents.
-              Here’s a glimpse into the energy, connection, and collaboration that define our global community.
+              {content.galleryDescription}
             </p>
             <div className="gallery">
-              {GALLERY.map((m, i) => (
+              {galleryItems.map((m, i) => (
                 <div
                   key={m.src + i}
                   className="tile"

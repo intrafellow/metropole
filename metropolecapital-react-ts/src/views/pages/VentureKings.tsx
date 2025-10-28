@@ -1,8 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "@styles/home.css";
-import vkLogo from "../../assets/34.jpg"; //
+import { getVentureKingsContent } from "../../services/getContentFromSanity";
+import { urlFor } from "../../services/sanityService";
+import { PortableText } from '@portabletext/react';
 
 export default function VentureKings() {
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getVentureKingsContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
   useEffect(() => {
     const css = String.raw`
       .impact {
@@ -150,19 +163,28 @@ export default function VentureKings() {
     return () => document.head.removeChild(el);
   }, []);
 
+  if (loading || !content) {
+    return (
+      <main>
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Loading...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main>
       {/* === HERO (ТЕКСТ + ЭМБЛЕМА СПРАВА) === */}
       <section className="section">
         <div className="container impact">
           <div>
-            <h2 className="title">Venture Kings™</h2>
-            <p className="lead">
-              <strong>Venture Kings</strong> is a startup simulation game that puts players directly in the founder’s seat,
-              forcing them to make the same strategic and financial trade-offs real entrepreneurs face.
-            </p>
+            <h2 className="title">{content.title}</h2>
+            <p className="lead" dangerouslySetInnerHTML={{ __html: content.lead.replace(/<strong>Venture Kings<\/strong>/g, '<strong>Venture Kings</strong>') }} />
           </div>
-          <img src={vkLogo} alt="Venture Kings Emblem" className="vk-logo" />
+          <img src={urlFor(content.logo).width(600).url()} alt="Venture Kings Emblem" className="vk-logo" />
         </div>
       </section>
 
@@ -170,27 +192,17 @@ export default function VentureKings() {
       <section className="section">
         <div className="container grid2">
           <div className="card" data-icon="brain">
-            <h3>Why Venture Kings™</h3>
+            <h3>{content.whyCard?.title}</h3>
             <ul>
-              <li><strong>Realistic Simulation:</strong> Recreates the first six months of a startup journey.</li>
-              <li><strong>Strategic Trade-offs:</strong> Forces tough choices between raising capital and keeping control.</li>
-              <li><strong>Critical Thinking:</strong> Builds fast, strategic decision-making skills under pressure.</li>
-              <li><strong>Engagement:</strong> Ideal for MBA and PhD programs, accelerators, and innovation workshops.</li>
-              <li><strong>Outcome-Driven:</strong> The winner isn’t who raises the most but who ends with the highest Founder’s Equity Value.</li>
+              {content.whyCard?.items?.map((item: string, idx: number) => (
+                <li key={idx} dangerouslySetInnerHTML={{ __html: item.replace(/^([^:]+):/, '<strong>$1:</strong>') }} />
+              ))}
             </ul>
           </div>
 
           <div className="card" data-icon="gear">
-            <h3>How It Works</h3>
-           <p><strong>We customize every scenario to align with the organization’s strategic objectives. Here’s an example</strong></p>
-            <p>
-              Each team starts with $20,000 and 100% ownership. Six rounds simulate six months of startup life.
-              Each round, teams draw a Challenge Card and make a decision that affects their cash and ownership.
-            </p>
-            <p>
-              Mid-game, they face a Funding Challenge, choosing whether and how much control to give up for capital.
-              At the end, the team with the highest Founder’s Equity Value wins.
-            </p>
+            <h3>{content.howCard?.title}</h3>
+            <PortableText value={content.howCard?.description} />
           </div>
         </div>
       </section>
@@ -199,26 +211,17 @@ export default function VentureKings() {
       <section className="section">
         <div className="container grid2">
           <div className="card" data-icon="rocket">
-            <h3>Who It’s For</h3>
+            <h3>{content.whoCard?.title}</h3>
             <ul>
-              <li>Universities and business schools</li>
-              <li>Accelerators and incubators</li>
-              <li>Founder bootcamps and corporate innovation programs</li>
+              {content.whoCard?.items?.map((item: string, idx: number) => (
+                <li key={idx}>{item}</li>
+              ))}
             </ul>
           </div>
 
           <div className="card" data-icon="chess">
-            <h3>What Makes It Unique</h3>
-            <p>
-              Unlike most startup games that focus on pitching or storytelling, <strong>Venture Kings™</strong> puts the spotlight
-              on capital strategy and trade-offs. Players face real founder dilemmas:
-            </p>
-            <ul>
-              <li>Do you accept VC money and give up control?</li>
-              <li>Do you bootstrap and risk slower growth?</li>
-              <li>Do you pivot or stay the course?</li>
-            </ul>
-            <p>It’s not just a game — it’s a strategy lab.</p>
+            <h3>{content.uniqueCard?.title}</h3>
+            <PortableText value={content.uniqueCard?.description} />
           </div>
         </div>
       </section>
@@ -227,14 +230,8 @@ export default function VentureKings() {
       <section className="section">
         <div className="container">
           <div className="vk-cta">
-            <h3>Bring Venture Kings™ to Your Organization</h3>
-            <p>
-              Whether you're teaching entrepreneurial finance, running an accelerator, or training innovation leaders,
-              Venture Kings™ is a powerful and engaging way to make funding strategy come alive.
-            </p>
-            <p>
-              For licensing, workshops, or live facilitation — contact us through the form below.
-            </p>
+            <h3>{content.ctaTitle}</h3>
+            <PortableText value={content.ctaDescription} />
             <a href="/contact" className="vk-btn">Contact Us</a>
           </div>
         </div>

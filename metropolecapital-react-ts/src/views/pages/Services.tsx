@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "@styles/home.css";
+import { getServicesContent } from "../../services/getContentFromSanity";
+import { PortableText } from '@portabletext/react';
 
 function PageStyles() {
   return (
@@ -172,114 +174,30 @@ function PageStyles() {
 
 export default function Services() {
   const [openService, setOpenService] = useState<null | number>(null);
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const services = [
-    {
-      title: "Funding Strategy & Capital Roadmap",
-      short: "Turn fundraising into a strategic roadmap aligned with your goals.",
-      details: (
-        <>
-          <p>Most founders raise capital reactively. We make it strategic.</p>
-          <ul>
-            <li>Map your optimal capital structure (equity, debt, hybrid)</li>
-            <li>Plan funding stages and timing aligned with your strategy</li>
-            <li>Ensure long-term financing without losing control</li>
-          </ul>
-          <p><strong>Outcome:</strong> a clear, founder-centered funding plan.</p>
-        </>
-      ),
-    },
-    {
-      title: "Market Research & Investor Positioning",
-      short: "Position your venture precisely with data-driven insights.",
-      details: (
-        <>
-          <p>Winning funding starts with understanding your market.</p>
-          <ul>
-            <li>Market & trend analysis to identify key dynamics and growth areas</li>
-            <li>Competitive intelligence and benchmarking</li>
-            <li>Investor targeting strategy — who is likely to invest in your model</li>
-            <li>Market sizing: TAM / SAM / SOM breakdown with realistic assumptions</li>
-          </ul>
-          <p><strong>Outcome:</strong> sharper positioning, stronger investor appeal.</p>
-        </>
-      ),
-    },
-    {
-      title: "Financial Modeling & Valuation",
-      short: "Build investor-grade models that reflect your business reality.",
-      details: (
-        <>
-          <p>Numbers tell your story — we make sure they speak the investors’ language.</p>
-          <ul>
-            <li>Detailed projections with sensitivity and scenario analysis</li>
-            <li>Unit economics, breakeven, and dilution modeling</li>
-            <li>Valuation strategy and comparable benchmarking</li>
-          </ul>
-          <p><strong>Outcome:</strong> a solid financial foundation for confident fundraising.</p>
-        </>
-      ),
-    },
-    {
-      title: "Pitch Deck & Investment Narrative",
-      short: "Craft a clear and persuasive story that resonates with investors.",
-      details: (
-        <>
-          <p>A great pitch deck informs, inspires, and convinces.</p>
-          <ul>
-            <li>Deck structure and storytelling strategy</li>
-            <li>Positioning for venture capital, angels, or hybrid models</li>
-            <li>Investor presentation and Q&A coaching</li>
-          </ul>
-          <p><strong>Outcome:</strong> a story that cuts through the noise and connects.</p>
-        </>
-      ),
-    },
-    {
-      title: "Revenue Growth Strategy",
-      short: "Create sustainable revenue paths aligned with your capital structure.",
-      details: (
-        <>
-          <p>Capital is fuel — but growth is the engine.</p>
-          <ul>
-            <li>Go-to-market strategy and customer segmentation</li>
-            <li>Pricing and retention optimization</li>
-            <li>Scaling models aligned with capital structure and profitability goals</li>
-          </ul>
-          <p><strong>Outcome:</strong> a realistic, scalable path to long-term success.</p>
-        </>
-      ),
-    },
-    {
-      title: "Alternative & Hybrid Financing",
-      short: "Explore non-VC options like revenue share, grants & tokenization.",
-      details: (
-        <>
-          <p>Venture capital is only one path — we help you discover the rest.</p>
-          <ul>
-            <li>Revenue-based financing and profit-sharing models</li>
-            <li>Government and institutional grants</li>
-            <li>Emerging hybrid and tokenized structures</li>
-          </ul>
-          <p><strong>Outcome:</strong> more flexibility, more control, and less dilution.</p>
-        </>
-      ),
-    },
-    {
-      title: "Workshops & Masterclasses",
-      short: "Educational programs for founders, accelerators, and universities.",
-      details: (
-        <>
-          <ul>
-            <li>Startup finance & capital strategy workshops</li>
-            <li>Venture Triad™ sessions — understanding the founder-investor dynamic</li>
-            <li>Guest lectures, masterclasses, and keynotes for innovation hubs</li>
-          </ul>
-          <p><strong>Outcome:</strong> empowering the next generation of founders and investors.</p>
-        </>
-      ),
-    },
-  ];
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getServicesContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
+
+  if (loading || !content) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Loading...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main>
@@ -288,11 +206,8 @@ export default function Services() {
       {/* === HERO === */}
       <section className="section">
         <div className="container impact">
-          <h2 className="title">Services</h2>
-          <p className="lead">
-            Every founder’s journey is unique. We help you choose the smartest capital path,
-            sharpen your story, and build the financial architecture to back it up.
-          </p>
+          <h2 className="title">{content.title}</h2>
+          <p className="lead">{content.lead}</p>
         </div>
       </section>
 
@@ -300,8 +215,8 @@ export default function Services() {
       <section className="section">
         <div className="container">
           <div className="services-grid">
-            {services.map((s, i) => (
-              <div key={s.title} className="service-card">
+            {content.serviceItems?.map((s: any, i: number) => (
+              <div key={s.title || i} className="service-card">
                 <h3>{s.title}</h3>
                 <p>{s.short}</p>
                 <button onClick={() => setOpenService(i)}>Learn more</button>
@@ -318,7 +233,7 @@ export default function Services() {
                 marginBottom: "26px",
               }}
             >
-              Interested in working together?
+              {content.ctaText}
             </p>
 
             <a
@@ -364,7 +279,7 @@ export default function Services() {
       </section>
 
       {/* === MODAL === */}
-      {openService !== null && (
+      {openService !== null && content.serviceItems?.[openService] && (
         <div className="modal-backdrop" onClick={() => setOpenService(null)}>
           <div
             className="modal"
@@ -372,8 +287,10 @@ export default function Services() {
             role="dialog"
             aria-modal="true"
           >
-            <h3>{services[openService].title}</h3>
-            <div className="p">{services[openService].details}</div>
+            <h3>{content.serviceItems[openService].title}</h3>
+            <div className="p">
+              <PortableText value={content.serviceItems[openService].details} />
+            </div>
             <button onClick={() => setOpenService(null)}>Close</button>
           </div>
         </div>

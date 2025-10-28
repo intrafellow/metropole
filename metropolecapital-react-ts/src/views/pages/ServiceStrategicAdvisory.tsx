@@ -1,7 +1,6 @@
 import "@styles/home.css";
-
-type Bullet = { title: string; desc?: string };
-type Step = { num: string; title: string; desc: string };
+import { useState, useEffect } from "react";
+import { getServiceStrategicAdvisoryContent } from "../../services/getContentFromSanity";
 
 function PageStyles() {
   return (
@@ -62,29 +61,43 @@ function PageStyles() {
 }
 
 export default function ServiceStrategicAdvisory() {
-  const WHAT: Bullet[] = [
-    { title: "Funding strategy", desc: "Right mix across equity, revenue-based, SPVs/notes, grants — matched to stage and goals." },
-    { title: "Financial modeling", desc: "Driver-based model with scenarios and unit economics. Ready for investor Q&A." },
-    { title: "Go-to-market & growth", desc: "ICP, funnel, conversion targets, channels, role-based value mapping." },
-    { title: "Narrative & materials", desc: "Clarify the story; assemble deck / one-pager / data room." },
-    { title: "Investor pipeline", desc: "Segmentation, CRM, touch sequence, status tracker." },
-    { title: "Board & metrics", desc: "Compact dashboard: traction, efficiency, sustainability." },
-  ];
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const DELIVERABLES: Bullet[] = [
-    { title: "Funding memo (+ deck)", desc: "Reasoned strategy with options, risks, and milestones." },
-    { title: "Financial model", desc: "Scenarios, sensitivity, sample cap tables." },
-    { title: "GTM plan", desc: "Experiment calendar, KPIs, ownership." },
-    { title: "Investor list & CRM", desc: "Email templates, stages, follow-ups." },
-    { title: "Data room checklist", desc: "Structure and readiness checklist." },
-  ];
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getServiceStrategicAdvisoryContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
 
-  const STEPS: Step[] = [
-    { num: "01", title: "Discovery", desc: "Context, objectives, constraints, preliminary strategy hypothesis." },
-    { num: "02", title: "Narrative & model", desc: "Key claims, financial model, metrics; quick GTM corrections." },
-    { num: "03", title: "Pipeline", desc: "Investor segmentation, outreach scripts, touch patterns." },
-    { num: "04", title: "Review & prep", desc: "Dry runs, materials polish, 90-day execution plan." },
-  ];
+  if (loading) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Loading...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!content) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Content not available</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main>
@@ -93,10 +106,8 @@ export default function ServiceStrategicAdvisory() {
       {/* HERO */}
       <section className="section">
         <div className="container impact">
-          <h1 className="title">Strategic Advisory</h1>
-          <p className="lead">
-            Funding strategy, financial modeling, and growth — practical and outcome-driven. We build the investor-ready story, model, and pipeline with your team.
-          </p>
+          <h1 className="title">{content.title}</h1>
+          <p className="lead">{content.lead}</p>
           <div className="cta-wrap">
             <a className="cta-primary" href="/contact">Talk to us</a>
           </div>
@@ -106,12 +117,12 @@ export default function ServiceStrategicAdvisory() {
       {/* WHAT WE DO */}
       <section className="section">
         <div className="container">
-          <div className="h5">What we do</div>
+          <div className="h5">{content.whatWeDoTitle}</div>
           <div className="grid-3" style={{ marginTop: 12 }}>
-            {WHAT.map((b) => (
-              <div key={b.title} className="tile">
-                <div className="title">{b.title}</div>
-                {b.desc && <div className="desc">{b.desc}</div>}
+            {content.whatWeDoItems?.map((item: any, idx: number) => (
+              <div key={idx} className="tile">
+                <div className="title">{item.title}</div>
+                {item.description && <div className="desc">{item.description}</div>}
               </div>
             ))}
           </div>
@@ -121,19 +132,19 @@ export default function ServiceStrategicAdvisory() {
       {/* DELIVERABLES */}
       <section className="section">
         <div className="container">
-          <div className="h5">Deliverables</div>
+          <div className="h5">{content.deliverablesTitle}</div>
           <div className="grid-3" style={{ marginTop: 12 }}>
-            {DELIVERABLES.map((b) => (
-              <div key={b.title} className="tile">
-                <div className="title">{b.title}</div>
-                {b.desc && <div className="desc">{b.desc}</div>}
+            {content.deliverablesItems?.map((item: any, idx: number) => (
+              <div key={idx} className="tile">
+                <div className="title">{item.title}</div>
+                {item.description && <div className="desc">{item.description}</div>}
               </div>
             ))}
           </div>
           <div className="stack" style={{ marginTop: 12 }}>
-            <span className="pill">Founder-first</span>
-            <span className="pill">Data-driven</span>
-            <span className="pill">Execution-ready</span>
+            {content.pills?.map((pill: string, idx: number) => (
+              <span key={idx} className="pill">{pill}</span>
+            ))}
           </div>
         </div>
       </section>
@@ -141,15 +152,15 @@ export default function ServiceStrategicAdvisory() {
       {/* PROCESS */}
       <section className="section">
         <div className="container">
-          <div className="h5">Process</div>
+          <div className="h5">{content.processTitle}</div>
           <div className="card" style={{ marginTop: 12 }}>
             <div className="grid-2">
-              {STEPS.map((s) => (
-                <div key={s.num} className="step">
-                  <div className="num">{s.num}</div>
+              {content.processSteps?.map((step: any, idx: number) => (
+                <div key={idx} className="step">
+                  <div className="num">{step.num}</div>
                   <div>
-                    <div className="h6">{s.title}</div>
-                    <div className="small muted">{s.desc}</div>
+                    <div className="h6">{step.title}</div>
+                    <div className="small muted">{step.description}</div>
                   </div>
                 </div>
               ))}
@@ -161,20 +172,14 @@ export default function ServiceStrategicAdvisory() {
       {/* ENGAGEMENT MODELS */}
       <section className="section">
         <div className="container">
-          <div className="h5">Engagement</div>
+          <div className="h5">{content.engagementTitle}</div>
           <div className="grid-3" style={{ marginTop: 12 }}>
-            <div className="tile">
-              <div className="title">Sprint (2–4 weeks)</div>
-              <div className="desc">One decisive outcome: model, memo, deck, or pipeline.</div>
-            </div>
-            <div className="tile">
-              <div className="title">Quarter program</div>
-              <div className="desc">Round support end-to-end: strategy → execution → retro.</div>
-            </div>
-            <div className="tile">
-              <div className="title">Advisory retainer</div>
-              <div className="desc">Regular sessions and on-call support while you move the pipeline.</div>
-            </div>
+            {content.engagementItems?.map((item: any, idx: number) => (
+              <div key={idx} className="tile">
+                <div className="title">{item.title}</div>
+                <div className="desc">{item.description}</div>
+              </div>
+            ))}
           </div>
           <div className="cta-wrap" style={{ marginTop: 12 }}>
             <a className="cta-primary" href="/contact">Start a sprint</a>
@@ -186,16 +191,14 @@ export default function ServiceStrategicAdvisory() {
       {/* FAQ */}
       <section className="section">
         <div className="container">
-          <div className="h5">FAQ</div>
+          <div className="h5">{content.faqTitle}</div>
           <div className="grid-2" style={{ marginTop: 12 }}>
-            <div className="tile">
-              <div className="title">What stages do you work with?</div>
-              <div className="desc">Pre-seed to Series B. Clear use-case and readiness matter more than stage.</div>
-            </div>
-            <div className="tile">
-              <div className="title">Can you join investor calls?</div>
-              <div className="desc">Yes — we do dry runs and can join key meetings to support the narrative and numbers.</div>
-            </div>
+            {content.faqItems?.map((item: any, idx: number) => (
+              <div key={idx} className="tile">
+                <div className="title">{item.title}</div>
+                <div className="desc">{item.description}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

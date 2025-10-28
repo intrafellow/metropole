@@ -1,7 +1,21 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "@styles/home.css";
+import { getMethologyContent } from "../../services/getContentFromSanity";
+import { PortableText } from '@portabletext/react';
 
 export default function Methodology() {
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getMethologyContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
+
   useEffect(() => {
     const css = String.raw`
       /* === HERO === */
@@ -181,16 +195,37 @@ export default function Methodology() {
     };
   }, []);
 
+  if (loading) {
+    return (
+      <main>
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Loading...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!content) {
+    return (
+      <main>
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Content not available</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main>
       {/* === HERO === */}
       <section className="section">
         <div className="container impact">
-          <h2 className="title">Methodology</h2>
-          <p className="lead">
-            The Venture Triad of Trade-offs™ — a strategic compass that helps founders make the right capital decisions
-            before they raise, spend, or scale.
-          </p>
+          <h2 className="title">{content.title}</h2>
+          <p className="lead">{content.lead}</p>
         </div>
       </section>
 
@@ -206,7 +241,7 @@ export default function Methodology() {
                 color: "var(--fg)",
               }}
             >
-              The Venture Triad of Trade-offs
+              {content.triadTitle}
             </h3>
             <p
               style={{
@@ -214,7 +249,7 @@ export default function Methodology() {
                 fontSize: "clamp(18px, 2vw, 20px)",
               }}
             >
-              Every founder faces three unavoidable trade-offs that define how ventures evolve (Silchenko)
+              {content.triadDescription}
             </p>
           </div>
 
@@ -262,11 +297,9 @@ export default function Methodology() {
             }}
           >
             <div style={{ color: "#ff5630", fontWeight: 800, marginBottom: 8, fontSize: 20 }}>
-              ⚡ Scaling vs. Building
+              {content.topBlock?.emoji} {content.topBlock?.title}
             </div>
-            <div style={{ color: "var(--fg)", lineHeight: 1.7, fontSize: 18 }}>
-              Blitzscale for exit <br /> vs. <br /> Build for resilience
-            </div>
+            <div style={{ color: "var(--fg)", lineHeight: 1.7, fontSize: 18 }} dangerouslySetInnerHTML={{ __html: content.topBlock?.content }} />
           </div>
 
           {/* Bottom-left block */}
@@ -286,11 +319,9 @@ export default function Methodology() {
             }}
           >
             <div style={{ color: "#ffb700", fontWeight: 800, marginBottom: 8, fontSize: 20 }}>
-              🔒 Patents vs. Open
+              {content.bottomLeftBlock?.emoji} {content.bottomLeftBlock?.title}
             </div>
-            <div style={{ color: "var(--fg)", lineHeight: 1.7, fontSize: 18 }}>
-              Protect IP <br /> vs. <br /> Open innovation
-            </div>
+            <div style={{ color: "var(--fg)", lineHeight: 1.7, fontSize: 18 }} dangerouslySetInnerHTML={{ __html: content.bottomLeftBlock?.content }} />
           </div>
 
           {/* Bottom-right block */}
@@ -310,11 +341,9 @@ export default function Methodology() {
             }}
           >
             <div style={{ color: "#00e6a8", fontWeight: 800, marginBottom: 8, fontSize: 20 }}>
-              💰 Traditional VC vs. Alternative Funding
+              {content.bottomRightBlock?.emoji} {content.bottomRightBlock?.title}
             </div>
-            <div style={{ color: "var(--fg)", lineHeight: 1.7, fontSize: 18 }}>
-              Equity <br /> vs. <br /> Non-equity / Hybrid models
-            </div>
+            <div style={{ color: "var(--fg)", lineHeight: 1.7, fontSize: 18 }} dangerouslySetInnerHTML={{ __html: content.bottomRightBlock?.content }} />
           </div>
 
           {/* Center */}
@@ -350,7 +379,7 @@ export default function Methodology() {
                 maxWidth: 140,
               }}
             >
-              Navigate tensions <br /> between competing forces
+              {content.centerTitle || "Navigate tensions"} <br /> {content.centerDescription || "between competing forces"}
             </div>
           </div>
         </div>
@@ -364,7 +393,7 @@ export default function Methodology() {
               width: "100%",
             }}
           >
-            We don't push founders down a single path
+            {content.footerText1 || "We don't push founders down a single path"}
           </p>
           <p
             className="p"
@@ -375,7 +404,7 @@ export default function Methodology() {
               width: "100%",
             }}
           >
-            We give them the clarity to choose their own
+            {content.footerText2 || "We give them the clarity to choose their own"}
           </p>
         </div>
       </section>
@@ -383,90 +412,65 @@ export default function Methodology() {
       {/* === GRID === */}
       <section className="section">
         <div className="container grid-cards">
-          {/* 1 */}
-          <div className="card">
-            <h3>1. Why Trade-offs Define Real Ventures</h3>
-            <p className="p">
-              Most startup advice starts with funding rounds. We start earlier.
-              Before a founder raises a single dollar, there are three critical strategic decisions that shape the entire journey.
-            </p>
-            <p className="p">
-              These decisions determine your capital structure, your growth path, and ultimately whether you’re building
-              an enduring company or a short-term asset.
-            </p>
-            <p className="p">
-              This is why we created <strong>The Venture Triad of Trade-offs™</strong> — a practical strategic compass
-              for founders who want to master capital, not be mastered by it.
-            </p>
-            <p className="p">
-              If you get these trade-offs right, everything else — from funding to growth — aligns.
-            </p>
-          </div>
-
-          {/* 2 */}
-          <div className="card">
-            <h3>2. The Three Trade-Offs</h3>
-            <div className="subcard">
-              <strong>A. Scaling vs. Building</strong>
-              <ul>
-                <li>Do you blitzscale for a fast exit or build a company designed to endure?</li>
-                <li>Scaling for exit: attracts VC, prioritizes speed, and often means dilution and investor control.</li>
-                <li>Building for legacy: slower growth, more resilience, and founder ownership.</li>
-              </ul>
-            </div>
-            <div className="subcard">
-              <strong>B. Patents vs. Open Innovation</strong>
-              <ul>
-                <li>Protect IP or open innovation?</li>
-                <li>Patents: defensibility and higher valuation, but require capital and time.</li>
-                <li>Open: faster adoption, but changes funding logic.</li>
-              </ul>
-            </div>
-            <div className="subcard">
-              <strong>C. VC vs. Alternative Funding</strong>
-              <ul>
-                <li>VC: provides capital but pushes for exits and control.</li>
-                <li>Alternative: crowdfunding, revenue sharing, grants — retaining more control.</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* 3 */}
-          <div className="card">
-            <h3>3. Why It Matters</h3>
-            <p className="p">
-              The Venture Triad™ isn’t a slogan. It’s a decision-making framework that gives founders clarity before they raise, spend, or scale.
-            </p>
-            <ul>
-              <li>Design intentional capital strategies instead of reactive fundraising.</li>
-              <li>Align financial architecture with mission and purpose.</li>
-              <li>Stay in control of company trajectory.</li>
-            </ul>
-            <p className="p"><strong>Capital should serve the vision — not the other way around.</strong></p>
-          </div>
-
-          {/* 4 */}
-          <div className="card">
-            <h3>4. How We Use This Framework</h3>
-            <ul>
-              <li>Build funding strategies aligned with founder intent.</li>
-              <li>Shape valuation and modeling logic.</li>
-              <li>Craft investment narratives reflecting real strategic choices.</li>
-              <li>Recommend instruments that fit long-term goals.</li>
-              <li>Leverage AI-powered modeling for sharper insight.</li>
-            </ul>
-          </div>
-
-          {/* 5 === CTA === */}
-          <div className="card cta" style={{ gridColumn: "span 2" }}>
-            <h3>5. Work With Us</h3>
-            <p className="p">
-              Whether you're scaling fast or building for legacy, the Venture Triad™ helps you make the right decisions early.
-            </p>
-            <a href="/contact" className="cta-btn">
-              Contact us
-            </a>
-          </div>
+          {/* Dynamic cards from Sanity */}
+          {content.cards?.map((card: any, idx: number) => {
+            // Карточка #5 на всю ширину с CTA
+            if (card.title === '5. Work With Us') {
+              return (
+                <div key={idx} className="card cta" style={{ gridColumn: 'span 2' }}>
+                  <h3>{card.title}</h3>
+                  {card.content && <p className="p" dangerouslySetInnerHTML={{ __html: card.content }} />}
+                  <a href="/contact" className="cta-btn">
+                    Contact us
+                  </a>
+                </div>
+              );
+            }
+            
+            // Обычная карточка
+            return (
+              <div key={idx} className="card">
+                <h3>{card.title}</h3>
+                {card.content && <p className="p" dangerouslySetInnerHTML={{ __html: card.content }} />}
+                {/* Не показываем items для карточки #2, так как там subcards */}
+                {card.title !== '2. The Three Trade-Offs' && card.items && card.items.length > 0 && (
+                  <ul>
+                    {card.items.map((item: string, itemIdx: number) => (
+                      <li key={itemIdx} dangerouslySetInnerHTML={{ __html: item }} />
+                    ))}
+                  </ul>
+                )}
+                {/* Для карточки #2 добавляем subcards */}
+                {card.title === '2. The Three Trade-Offs' && (
+                  <div>
+                    <div className="subcard">
+                      <strong>A. Scaling vs. Building</strong>
+                      <ul className="p">
+                        <li>Do you blitzscale for a fast exit or build a company designed to endure?</li>
+                        <li>Scaling for exit: attracts VC, prioritizes speed, and often means dilution and investor control.</li>
+                        <li>Building for legacy: slower growth, more resilience, and founder ownership.</li>
+                      </ul>
+                    </div>
+                    <div className="subcard">
+                      <strong>B. Patents vs. Open Innovation</strong>
+                      <ul className="p">
+                        <li>Protect IP or open innovation?</li>
+                        <li>Patents: defensibility and higher valuation, but require capital and time.</li>
+                        <li>Open: faster adoption, but changes funding logic.</li>
+                      </ul>
+                    </div>
+                    <div className="subcard">
+                      <strong>C. VC vs. Alternative Funding</strong>
+                      <ul className="p">
+                        <li>VC: provides capital but pushes for exits and control.</li>
+                        <li>Alternative: crowdfunding, revenue sharing, grants — retaining more control.</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
     </main>

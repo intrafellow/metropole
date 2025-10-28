@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { getAboutContent, type AboutContent } from "@services/sanityService";
 import "@styles/home.css";
 
 function PageStyles() {
@@ -49,6 +51,46 @@ function PageStyles() {
 }
 
 export default function About() {
+  const [content, setContent] = useState<AboutContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getAboutContent()
+      .then((data) => {
+        setContent(data);
+      })
+      .catch((err) => {
+        console.error("Failed to load content:", err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: "center", padding: "80px 40px" }}>
+            <div className="h5">Loading...</div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!content) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: "center", padding: "80px 40px" }}>
+            <div className="h5">Failed to load content</div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main>
       <PageStyles />
@@ -56,28 +98,21 @@ export default function About() {
       {/* === HERO === */}
       <section className="section">
         <div className="container impact">
-          <h2 className="title">About Us</h2>
-          <p className="lead">
-            Based in Los Angeles, we inspire and empower entrepreneurs, innovators, and creators around the globe with modern funding tools and strategic insight,
-            enabling them to design and execute their own financing strategies with confidence, independence, and vision.
-          </p>
+          <h2 className="title">{content.title}</h2>
+          <p className="lead">{content.lead}</p>
         </div>
       </section>
 
       {/* === WHY US === */}
       <section className="section">
         <div className="container">
-          <div className="h5">Why Us</div>
+          <div className="h5">{content.whyUs?.title}</div>
           <div className="card">
-            <p className="p">
-              Most advisors stop at venture capital. We don't. We work with founders who raise through VC, but we also open the door
-              to alternative and hybrid funding models, including:
-            </p>
+            <p className="p">{content.whyUs?.description}</p>
             <ul className="p" style={{ marginTop: 14 }}>
-              <li>Crowdfunding / Equity Crowdfunding</li>
-              <li>Revenue sharing</li>
-              <li>Non-dilutive financing (grants, corporate programs, strategic partnerships)</li>
-              <li>Emerging funding models</li>
+              {content.whyUs?.items?.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -86,13 +121,12 @@ export default function About() {
       {/* === OUR GOALS === */}
       <section className="section">
         <div className="container">
-          <div className="h5">Our Goals</div>
+          <div className="h5">{content.ourGoals?.title}</div>
           <div className="card">
             <ul className="p">
-              <li>Equip founders with the knowledge and tools to work with capital on their own terms.</li>
-              <li>Help ventures craft funding strategies aligned with their business models, not external pressures.</li>
-              <li>Build a global founder network driven by informed, independent financing decisions.</li>
-              <li>Bridge the gap between traditional finance and emerging models to create smarter funding ecosystems.</li>
+              {content.ourGoals?.items?.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -101,14 +135,9 @@ export default function About() {
       {/* === OUR VALUES === */}
       <section className="section">
         <div className="container">
-          <div className="h5">Our Values</div>
+          <div className="h5">{content.ourValues?.title}</div>
           <div className="card">
-            <p className="p">
-              We believe in clarity, integrity, and real impact. We’re founders ourselves, and we understand the high stakes of building
-              something that matters. Most innovators today face a defining dilemma: build a multi-generational company that endures,
-              or build an asset for sale. We help founders navigate that choice with clarity, strategy, and control, grounding every
-              engagement in trust and transparency.
-            </p>
+            <p className="p">{content.ourValues?.description}</p>
           </div>
         </div>
         <div style={{ textAlign: "center", marginTop: "80px" }}>

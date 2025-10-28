@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@styles/home.css";
 import toast from "react-hot-toast";
-import e1 from "../../assets/events/2е.jpg";
+import { getContactContent } from "../../services/getContentFromSanity";
+import { urlFor } from "../../services/sanityService";
+
+// Fallback image
+const fallbackImage = "https://via.placeholder.com/800x450"
 
 function PageStyles() {
   return (
@@ -74,6 +78,9 @@ function PageStyles() {
 }
 
 export default function Contact() {
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -81,6 +88,15 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getContactContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -122,6 +138,32 @@ export default function Contact() {
     });
   };
 
+  if (loading) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p className="p">Loading...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!content) {
+    return (
+      <main>
+        <PageStyles />
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p className="p">Content not available</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main>
       <PageStyles />
@@ -129,25 +171,20 @@ export default function Contact() {
       {/* === HERO === */}
       <section className="section">
         <div className="container contact-hero">
-          <h2 className="title">Contact Us</h2>
-          <p className="lead">
-            Let’s build your next big move together. Whether you're raising capital,
-            refining your growth strategy, or exploring alternative funding models —
-            we’d love to hear from you.
-          </p>
+          <h2 className="title">{content.title}</h2>
+          <p className="lead">{content.lead}</p>
         </div>
       </section>
 
       {/* === FORM === */}
       <section className="section theme-blue">
         <div className="container">
-          <h2 className="h">Send us a message</h2>
+          <h2 className="h">{content.formTitle || "Send us a message"}</h2>
 
           <form className="card" style={{ marginTop: 16 }} onSubmit={handleSubmit}>
             {submitted ? (
               <div className="p" role="status">
-                Thank you — your message has been sent! <br />
-                We’ll get back to you shortly.
+                {content.formSuccessMessage || "Thank you — your message has been sent! We'll get back to you shortly."}
               </div>
             ) : (
               <>
@@ -206,21 +243,22 @@ export default function Contact() {
       {/* === OFFICE INFO === */}
       <section className="section">
         <div className="container">
-          <h2 className="h">Phone</h2>
+          <h2 className="h">{content.officeTitle || "Phone"}</h2>
 
           <div className="card office" style={{ marginTop: 16 }}>
             <div>
               <div className="p">
-                <b>Metropole Capital Group</b><br />
+                <b>{content.companyName || "Metropole Capital Group"}</b><br />
               </div>
               <div className="p" style={{ marginTop: 10 }}>
-                Phone: <a href="tel:+13104641575">+1 (310) 464-1575</a><br />
+                Phone: <a href={`tel:${content.phone}`}>{content.phone}</a><br />
               </div>
             </div>
 
             <img
               className="map"
-              src={e1}
+              src={content.officePhoto ? urlFor(content.officePhoto).width(800).url() : fallbackImage}
+              alt="Office"
             />
           </div>
         </div>

@@ -1,11 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "@styles/home.css";
-import v from "../../assets/team/v.jpg";
-import s from "../../assets/team/s.jpg";
-import p from "../../assets/team/p.jpg";
-import l from "../../assets/team/l.jpg";
+import { getTeamContent } from "../../services/getContentFromSanity";
+import { urlFor } from "../../services/sanityService";
+import { PortableText } from '@portabletext/react';
 
 export default function Team() {
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadContent() {
+      const data = await getTeamContent();
+      setContent(data);
+      setLoading(false);
+    }
+    loadContent();
+  }, []);
+
   useEffect(() => {
     const css = String.raw`
       .impact { display: grid; gap: 28px; color: var(--fg); }
@@ -127,6 +138,14 @@ export default function Team() {
         line-height: 1.7;
         opacity: 0.96;
       }
+      
+      .member-bio p {
+        margin-bottom: 16px;
+      }
+      
+      .member-bio p:last-child {
+        margin-bottom: 0;
+      }
 
       .linkedin {
         margin-top: 20px;
@@ -157,15 +176,37 @@ export default function Team() {
     return () => document.head.removeChild(el);
   }, []);
 
+  if (loading) {
+    return (
+      <main>
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Loading...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!content) {
+    return (
+      <main>
+        <section className="section">
+          <div className="container" style={{ textAlign: 'center', padding: '48px' }}>
+            <p>Content not available</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main>
       {/* === HERO === */}
       <section className="section">
         <div className="container impact">
-          <h2>Our Team</h2>
-          <p className="lead">
-            Leaders, educators, and innovators shaping the new era of capital, strategy, and creativity.
-          </p>
+          <h2>{content.title}</h2>
+          <p className="lead">{content.lead}</p>
         </div>
       </section>
 
@@ -173,30 +214,24 @@ export default function Team() {
       <section className="section">
         <div className="container grid-cards">
           <div className="card founder-card" style={{ gridColumn: "1 / -1" }}>
-            <img src={v} alt="Victoria Silchenko Robbins" className="founder-photo" />
+            <img 
+              src={urlFor(content.founder.photo).width(800).url()} 
+              alt={content.founder.name} 
+              className="founder-photo" 
+            />
             <div>
-              <h3 className="member-name">Victoria Silchenko Robbins, PhD</h3>
+              <h3 className="member-name">{content.founder.name}</h3>
               <div className="member-role">
-                Founder & CEO | Economist | Entrepreneurial Finance Strategist
+                {content.founder.role}
               </div>
-              <p className="member-bio">
-                Victoria Silchenko Robbins is an economist, educator, and founder with over two decades of experience at the
-                intersection of finance, entrepreneurship, and innovation. She is widely recognized for advising startups,
-                investors, and organizations globally on funding strategies, valuation, and capital structuring.
-              </p>
-              <p className="member-bio">
-                Before launching Metropole Capital Group, Victoria worked with leading financial institutions in California,
-                including the Milken Institute and Laffer Investments. She teaches MBA and PhD students as a visiting professor,
-                focusing on entrepreneurial finance and new funding models. Dr. Silchenko has served on the board of the Los Angeles Venture Association (LAVA), where she launched the GLOBAL LAVA chapter, and currently sits on the board of the California Stock Xchange.
-              </p>
-              <p className="member-bio">
-                Victoria is the creator of <strong>The Venture Triad of Trade-offs™</strong>, a strategic framework helping
-                founders navigate key decisions on growth, IP, and capital. She has advised international forums, accelerators,
-                and universities, and authored <em>Raise and Rise: Funding Sources for Your Startup in the Era of Digital Transformation & Blockchain.</em>
-              </p>
+              {content.founder.bio && (
+                <div className="member-bio">
+                  <PortableText value={content.founder.bio} />
+                </div>
+              )}
               <div className="linkedin">
                 <a
-                  href="https://www.linkedin.com/in/victoriametropolecapital/"
+                  href={content.founder.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -209,75 +244,33 @@ export default function Team() {
 
         {/* === Advisory Board === */}
         <div className="container">
-          <div className="divider">Advisory Board</div>
+          <div className="divider">{content.advisoryTitle || "Advisory Board"}</div>
           <div className="grid-board">
-            {/* Sandro Monetti */}
-            <div className="card">
-              <img src={s} alt="Sandro Monetti" className="photo photo-top" />
-              <h3 className="member-name">Sandro Monetti</h3>
-              <div className="member-role">
-                Entertainment Industry Expert | Journalist | COO, Big Screen Entertainment Group
+            {content.advisoryMembers?.map((member: any, idx: number) => (
+              <div key={idx} className="card">
+                <img 
+                  src={urlFor(member.photo).width(800).url()} 
+                  alt={member.name} 
+                  className={idx === 0 ? "photo photo-top" : "photo"} 
+                />
+                <h3 className="member-name">{member.name}</h3>
+                <div className="member-role">
+                  {member.role}
+                </div>
+                <p className="member-bio">
+                  {member.bio}
+                </p>
+                <div className="linkedin">
+                  <a
+                    href={member.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Connect on LinkedIn
+                  </a>
+                </div>
               </div>
-              <p className="member-bio">
-                Sandro Monetti is an internationally recognized entertainment industry expert, journalist, and author with
-                extensive experience in global media and culture. He is a regular contributor to CNN and BBC, and currently
-                serves as COO of Big Screen Entertainment Group in Los Angeles.
-              </p>
-              <div className="linkedin">
-                <a
-                  href="https://www.linkedin.com/in/sandro-monetti/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Connect on LinkedIn
-                </a>
-              </div>
-            </div>
-
-            {/* Paul Thurman */}
-            <div className="card">
-              <img src={p} alt="Dr. Paul Thurman" className="photo" />
-              <h3 className="member-name">Dr. Paul Thurman</h3>
-              <div className="member-role">
-                Professor | Global Strategy & Data Analytics Expert | Author
-              </div>
-              <p className="member-bio">
-                Dr. Paul Thurman is a professor, advisor, and author with extensive global experience in strategy, analytics,
-                and innovation. He has advised clients on six continents and teaches at Columbia University and London Business School.
-              </p>
-              <div className="linkedin">
-                <a
-                  href="https://www.linkedin.com/in/paul-thurman-dba-80433/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Connect on LinkedIn
-                </a>
-              </div>
-            </div>
-
-            {/* Lorena Welch */}
-            <div className="card">
-              <img src={l} alt="Lorena Welch" className="photo" />
-              <h3 className="member-name">Lorena Welch</h3>
-              <div className="member-role">
-                Founder & CEO, Dreamscapers Publishing | Creative Technologist | Visionary Storyteller
-              </div>
-              <p className="member-bio">
-                Lorena Welch is a visionary entrepreneur and creative technologist dedicated to inspiring young people to nurture
-                their talents and channel creativity into impact. As CEO of Dreamscapers Publishing, she pioneered HoloNovels™ —
-                XR/4D physical books with immersive augmented illustrations.
-              </p>
-              <div className="linkedin">
-                <a
-                  href="https://www.linkedin.com/in/lorena-welch/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Connect on LinkedIn
-                </a>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 

@@ -12,10 +12,19 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview --strictPort --port 5173",
-    "lint": "echo \"(lint intentionally omitted)\""
+    "lint": "echo \"(lint intentionally omitted)\"",
+    "sanity": "sanity dev --port 3333",
+    "import:content": "tsx import-content.ts"
   },
   "dependencies": {
+    "@agility/content-fetch": "^2.0.10",
+    "@portabletext/react": "^4.0.3",
+    "@sanity/client": "^7.12.0",
+    "@sanity/image-url": "^1.2.0",
+    "@vercel/kv": "^3.0.0",
+    "axios": "^1.13.0",
     "emailjs-com": "^3.2.0",
+    "firebase": "^12.4.0",
     "lucide-react": "^0.545.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -23,10 +32,15 @@
     "react-router-dom": "^6.26.1"
   },
   "devDependencies": {
+    "@sanity/cli": "^4.11.0",
+    "@sanity/desk-tool": "^2.36.2",
+    "@sanity/vision": "^4.11.0",
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "desk-tool": "^0.0.33",
+    "tsx": "^4.20.6",
     "typescript": "^5.6.2",
     "vite": "^5.4.8",
     "vite-tsconfig-paths": "^4.3.2"
