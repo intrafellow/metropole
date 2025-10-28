@@ -1,52 +1,39 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 /**
- * Хук для загрузки контента из Sanity с real-time обновлениями через WebSocket
+ * Хук для загрузки контента из Sanity с автообновлением через polling
  * @param fetchFn - функция для загрузки данных
- * @param query - GROQ запрос для подписки на изменения
  */
 export function useSanityContent<T>(
   fetchFn: () => Promise<T | null>,
-  query?: string,
-  params?: Record<string, any>
+  pollInterval: number = 30000 // 30 секунд
 ) {
   const [content, setContent] = useState<T | null>(null)
   const [loading, setLoading] = useState(true)
+  const lastContentRef = useRef<string>('')
 
   useEffect(() => {
-    let subscription: any = null
-
-    async function loadInitialData() {
+    async function loadContent() {
       const data = await fetchFn()
       setContent(data)
       setLoading(false)
-    }
 
-    async function setupRealtime() {
-      await loadInitialData()
-
-      // Если есть query - подписываемся на real-time изменения
-      if (query) {
-        const { sanityClient } = await import('../services/sanityService')
-        
-        subscription = sanityClient
-          .listen(query, params)
-          .subscribe((update) => {
-            // Когда контент меняется в Sanity, обновляем локальное состояние
-            if (update.type === 'mutation') {
-              loadInitialData() // Перезагружаем данные
-            }
-          })
+      // Проверяем изменился ли контент
+      const currentContent = JSON.stringify(data)
+      if (lastContentRef.current && lastContentRef.current !== currentContent) {
+        // Контент изменился - перезагружаем страницу
+        console.log('Content changed, reloading...')
+        window.location.reload()
       }
+      lastContentRef.current = currentContent
     }
 
-    setupRealtime()
+    loadContent()
 
-    return () => {
-      if (subscription) {
-        subscription.unsubscribe()
-      }
-    }
+    // Polling каждые N секунд
+    const interval = setInterval(loadContent, pollInterval)
+
+    return () => clearInterval(interval)
   }, [])
 
   return {

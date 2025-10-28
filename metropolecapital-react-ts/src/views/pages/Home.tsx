@@ -70,7 +70,7 @@ function calcSunAndSkyVars(opts: { tz?: string; now?: Date }) {
 export default function Home() {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const tz = "America/Los_Angeles";
-  const { content, loading } = useSanityContent(getHomeContent, '*[_type == "home"]'); // Realtime
+  const { content, loading } = useSanityContent(getHomeContent, 30000); // 30 сек
 
   function applySky(vars: Record<string, string>) {
     const el = heroRef.current;
