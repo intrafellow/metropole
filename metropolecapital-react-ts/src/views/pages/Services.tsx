@@ -151,21 +151,14 @@ function PageStyles() {
         opacity: .98;
       }
 
-  /* === Только размер: последняя карточка — full-bleed === */
+  /* === Последняя карточка: на всю ширину (3 колонки) === */
 .services-grid > .service-card:last-child {
-  grid-column: 1 / -1;                 /* занять всю строку грида */
-
-  margin-right: calc(50% - 50vw);
-  width: 100vw;                        /* на всю ширину вьюпорта */
-
-  /* стиль НЕ меняем: остаются border, border-radius, background, hover и пр. */
+  grid-column: 1 / -1;  /* Занимает все 3 колонки */
 }
 
 @media (max-width: 920px) {
   .services-grid > .service-card:last-child {
-    margin-left: 0;
-    margin-right: 0;
-    width: auto;
+    grid-column: span 1;  /* На мобилке 1 колонка */
   }
 }
 

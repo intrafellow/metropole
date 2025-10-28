@@ -1,5 +1,5 @@
 import React from "react";
-import { getAboutContent } from "../../services/getContentFromSanity";
+import { getAboutContent } from "@services/sanityService";
 import "@styles/home.css";
 import { useSanityContent } from "../../hooks/useSanityContent";
 
