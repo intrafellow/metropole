@@ -1,10 +1,11 @@
 import type React from "react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom"; // если не нужен здесь — можно удалить
 import "@styles/home.css";
 import back from "../../assets/back.png";
 import { getHomeContent } from "../../services/getContentFromSanity";
 import { urlFor } from "../../services/sanityService";
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 /* ---------- Time/Sky helpers ---------- */
 function getTZHoursMinutes(tz: string, now = new Date()) {
@@ -69,17 +70,7 @@ function calcSunAndSkyVars(opts: { tz?: string; now?: Date }) {
 export default function Home() {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const tz = "America/Los_Angeles";
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getHomeContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
+  const { content, loading } = useSanityContent(getHomeContent, '*[_type == "home"]'); // Realtime
 
   function applySky(vars: Record<string, string>) {
     const el = heroRef.current;
