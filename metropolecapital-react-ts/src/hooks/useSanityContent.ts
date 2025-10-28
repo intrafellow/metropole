@@ -22,21 +22,25 @@ export function useSanityContent<T>(
       setLoading(false)
     }
 
-    loadInitialData()
+    async function setupRealtime() {
+      await loadInitialData()
 
-    // Если есть query - подписываемся на real-time изменения
-    if (query) {
-      const { sanityClient } = await import('../services/sanityService')
-      
-      subscription = sanityClient
-        .listen(query, params)
-        .subscribe((update) => {
-          // Когда контент меняется в Sanity, обновляем локальное состояние
-          if (update.type === 'mutation') {
-            loadInitialData() // Перезагружаем данные
-          }
-        })
+      // Если есть query - подписываемся на real-time изменения
+      if (query) {
+        const { sanityClient } = await import('../services/sanityService')
+        
+        subscription = sanityClient
+          .listen(query, params)
+          .subscribe((update) => {
+            // Когда контент меняется в Sanity, обновляем локальное состояние
+            if (update.type === 'mutation') {
+              loadInitialData() // Перезагружаем данные
+            }
+          })
+      }
     }
+
+    setupRealtime()
 
     return () => {
       if (subscription) {
