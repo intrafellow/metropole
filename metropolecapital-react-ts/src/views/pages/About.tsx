@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { getAboutContent, type AboutContent } from "@services/sanityService";
+import React from "react";
+import { getAboutContent } from "../../services/getContentFromSanity";
 import "@styles/home.css";
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 function PageStyles() {
   return (
@@ -51,19 +52,7 @@ function PageStyles() {
 }
 
 export default function About() {
-  const [content, setContent] = useState<AboutContent | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getAboutContent()
-      .then((data) => {
-        setContent(data);
-      })
-      .catch((err) => {
-        console.error("Failed to load content:", err);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const { content, loading } = useSanityContent(getAboutContent, 5000);
 
   if (loading) {
     return (

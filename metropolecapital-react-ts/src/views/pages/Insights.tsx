@@ -1,20 +1,10 @@
 import "@styles/home.css";
-import { useState, useEffect } from "react";
 import { getInsightsContent } from "../../services/getContentFromSanity";
 import { urlFor } from "../../services/sanityService";
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 export default function Insights() {
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getInsightsContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
+  const { content, loading } = useSanityContent(getInsightsContent, 5000);
 
   if (loading) {
     return (

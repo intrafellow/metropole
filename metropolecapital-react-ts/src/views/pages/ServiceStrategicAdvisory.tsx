@@ -1,6 +1,6 @@
 import "@styles/home.css";
-import { useState, useEffect } from "react";
 import { getServiceStrategicAdvisoryContent } from "../../services/getContentFromSanity";
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 function PageStyles() {
   return (
@@ -61,17 +61,7 @@ function PageStyles() {
 }
 
 export default function ServiceStrategicAdvisory() {
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getServiceStrategicAdvisoryContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
+  const { content, loading } = useSanityContent(getServiceStrategicAdvisoryContent, 5000);
 
   if (loading) {
     return (

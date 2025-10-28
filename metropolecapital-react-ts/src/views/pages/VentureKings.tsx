@@ -1,21 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "@styles/home.css";
 import { getVentureKingsContent } from "../../services/getContentFromSanity";
 import { urlFor } from "../../services/sanityService";
 import { PortableText } from '@portabletext/react';
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 export default function VentureKings() {
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { content, loading } = useSanityContent(getVentureKingsContent, 5000);
 
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getVentureKingsContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
   useEffect(() => {
     const css = String.raw`
       .impact {

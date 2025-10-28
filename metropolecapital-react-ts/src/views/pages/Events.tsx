@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "@styles/home.css";
 import { getEventsContent } from "../../services/getContentFromSanity";
 import { urlFor } from "../../services/sanityService";
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 type MediaItem = {
   kind: "photo" | "video";
@@ -74,17 +75,7 @@ function PageStyles() {
 
 export default function Events() {
   const [openMedia, setOpenMedia] = useState<null | MediaItem>(null);
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getEventsContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
+  const { content, loading } = useSanityContent(getEventsContent, 5000);
 
   if (loading) {
     return (

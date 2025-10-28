@@ -1,20 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "@styles/home.css";
 import { getMethologyContent } from "../../services/getContentFromSanity";
 import { PortableText } from '@portabletext/react';
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 export default function Methodology() {
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getMethologyContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
+  const { content, loading } = useSanityContent(getMethologyContent, 5000);
 
   useEffect(() => {
     const css = String.raw`

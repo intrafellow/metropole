@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "@styles/home.css";
 import { getServicesContent } from "../../services/getContentFromSanity";
 import { PortableText } from '@portabletext/react';
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 function PageStyles() {
   return (
@@ -174,17 +175,7 @@ function PageStyles() {
 
 export default function Services() {
   const [openService, setOpenService] = useState<null | number>(null);
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getServicesContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
+  const { content, loading } = useSanityContent(getServicesContent, 5000);
 
   if (loading || !content) {
     return (

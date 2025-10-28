@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "@styles/home.css";
 import toast from "react-hot-toast";
 import { getContactContent } from "../../services/getContentFromSanity";
 import { urlFor } from "../../services/sanityService";
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 // Fallback image
 const fallbackImage = "https://via.placeholder.com/800x450"
@@ -78,8 +79,7 @@ function PageStyles() {
 }
 
 export default function Contact() {
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { content, loading } = useSanityContent(getContactContent, 5000);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -88,15 +88,6 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getContactContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

@@ -1,21 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "@styles/home.css";
 import { getTeamContent } from "../../services/getContentFromSanity";
 import { urlFor } from "../../services/sanityService";
 import { PortableText } from '@portabletext/react';
+import { useSanityContent } from "../../hooks/useSanityContent";
 
 export default function Team() {
-  const [content, setContent] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadContent() {
-      const data = await getTeamContent();
-      setContent(data);
-      setLoading(false);
-    }
-    loadContent();
-  }, []);
+  const { content, loading } = useSanityContent(getTeamContent, 5000);
 
   useEffect(() => {
     const css = String.raw`
